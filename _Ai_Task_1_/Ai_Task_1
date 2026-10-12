@@ -1,0 +1,83 @@
+import random
+
+# 1. Create two 8x8 boards
+hidden_board = [["."] * 8 for _ in range(8)]  # Holds the hidden ships
+guess_board = [["."] * 8 for _ in range(8)]  # What the player sees
+
+
+def print_board(board):
+  print("\n  1 2 3 4 5 6 7 8")
+  for i in range(8):
+    print(f"{i + 1} " + " ".join(board[i]))
+  print()
+
+
+# 2. Function to place a ship randomly
+def place_ship(length):
+  while True:
+    row = random.randint(0, 7)
+    col = random.randint(0, 7)
+    direction = random.choice(["H", "V"])  # Horizontal or Vertical
+
+    # Check if ship fits and doesn't overlap
+    if direction == "H" and col + length <= 8:
+      if all(hidden_board[row][col + i] == "." for i in range(length)):
+        for i in range(length):
+          hidden_board[row][col + i] = "S"
+        break
+
+    elif direction == "V" and row + length <= 8:
+      if all(hidden_board[row + i][col] == "." for i in range(length)):
+        for i in range(length):
+          hidden_board[row + i][col] = "S"
+        break
+
+
+# 3. Place all 3 ships
+place_ship(6)  # Aircraft Carrier (6)
+place_ship(4)  # Destroyer (4)
+place_ship(2)  # Frigate (2)
+
+total_targets = 6 + 4 + 2  # Total 12 hits needed
+hits = 0
+tries = 0
+
+print("Welcome to Battleship (8x8)!")
+print("Ships: Aircraft Carrier (6), Destroyer (4), Frigate (2)")
+
+# 4. Main Game Loop
+while hits < total_targets:
+  print_board(guess_board)
+
+  try:
+    r = int(input("Enter Row (1-8): ")) - 1
+    c = int(input("Enter Column (1-8): ")) - 1
+  except ValueError:
+    print("Please type numbers only!")
+    continue
+
+  # Validate bounds
+  if not (0 <= r < 8 and 0 <= c < 8):
+    print("Coordinates must be between 1 and 8!")
+    continue
+
+  # Check if already guessed
+  if guess_board[r][c] != ".":
+    print("You already fired there!")
+    continue
+
+  tries += 1
+
+  # Check Hit or Miss
+  if hidden_board[r][c] == "S":
+    print("\n>>> HIT! <<<")
+    guess_board[r][c] = "H"
+    hits += 1
+  else:
+    print("\n>>> MISS! <<<")
+    guess_board[r][c] = "M"
+
+# 5. End of Game
+print_board(guess_board)
+print("CONGRATULATIONSSSS! You destroyed the enemy fleet!")
+print(f"Total tries taken: {tries}")
